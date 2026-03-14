@@ -5,18 +5,34 @@ import {
   createReactTreePatcher,
   findInReactTree,
   afterPatch,
+  Navigation,
 } from "@decky/ui";
 import {
   definePlugin,
   routerHook,
-} from "@decky/api"
+} from "@decky/api";
 import { FaShip } from "react-icons/fa";
 
+function getSteamDbPriceHistoryUrl(appId: string): string {
+  const parsed = Number(appId);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error("Invalid appid");
+  }
+  return `https://steamdb.info/app/${parsed}/#pricehistory`;
+}
+
 function SteamDBButton() {
+  const appId = typeof window !== "undefined" ? window.location.pathname.match(/\/app\/(\d+)(?:\/|$)/)?.[1] : null;
+
+  if (!appId) return null;
+
   return (
     <ButtonItem
       layout="below"
-      onClick={() => console.log("SteamDB clicked")}
+      onClick={() => {
+        const url = getSteamDbPriceHistoryUrl(appId);
+        Navigation.NavigateToExternalWeb(url);
+      }}
     >
       SteamDB
     </ButtonItem>
@@ -46,7 +62,7 @@ export default definePlugin(() => {
         (innerTree: any) =>
           findInReactTree(innerTree, (x: any) => x?.props?.children?.props?.overview)?.props?.children,
       ],
-      (patchArgs: any[], ret?: any) => {
+      (_: any[], ret?: any) => {
         const container = findInReactTree(
           ret,
           (x: any) =>
