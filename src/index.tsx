@@ -1,5 +1,6 @@
 import {
   ButtonItem,
+  Focusable,
   staticClasses,
   appDetailsClasses,
   createReactTreePatcher,
@@ -52,6 +53,18 @@ function SteamDBButton() {
       <span>SteamDB</span>
       <FaExternalLinkAlt style={{ fontSize: "12px", opacity: 0.5 }} />
     </div>
+  );
+}
+
+function LibrarySteamDBButton() {
+  const appId = typeof window !== "undefined" ? window.location.pathname.match(/\/app\/(\d+)(?:\/|$)/)?.[1] : null;
+
+  if (!appId) return null;
+
+  return (
+    <Focusable style={{ display: "flex", justifyContent: "flex-end", width: "100%" }} flow-children="row">
+      <SteamDBButton />
+    </Focusable>
   );
 }
 
@@ -273,9 +286,9 @@ export default definePlugin(() => {
             <div
               key="steamdb-button-wrap"
               data-steamdb-button="true"
-              style={{ position: "absolute", bottom: "40px", left: "20px", zIndex: 20 }}
+              style={{ position: "absolute", top: "60px", right: "20px", zIndex: 20 }}
             >
-              <SteamDBButton key="steamdb-button" />
+              <LibrarySteamDBButton key="steamdb-button" />
             </div>,
           );
         }
