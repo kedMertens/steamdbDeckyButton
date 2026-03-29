@@ -53,7 +53,7 @@ function SettingsPanel() {
 }
 
 export default definePlugin(() => {
-  const patch = routerHook.addPatch("/library/app/:appid", (tree: any) => {
+  const libraryRoutePatch = routerHook.addPatch("/library/app/:appid", (tree: any) => {
     const routeProps = findInReactTree(tree, (x: any) => x?.renderFunc);
     if (!routeProps) return tree;
 
@@ -74,7 +74,38 @@ export default definePlugin(() => {
           (child: any) => child?.props?.["data-steamdb-button"] === "true",
         );
         if (!alreadyPatched) {
-          container.props.children.splice(1, 0, <SteamDBButton key="steamdb-button" />);
+          container.props.children.splice(1, 0, <SteamDBButton key="steamdb-button" data-steamdb-button="true" />);
+        }
+        return ret;
+      },
+    );
+
+    afterPatch(routeProps, "renderFunc", patchHandler);
+    return tree;
+  });
+
+  const storeRoutePatch = routerHook.addPatch("/app/:appid", (tree: any) => {
+    const routeProps = findInReactTree(tree, (x: any) => x?.renderFunc);
+    if (!routeProps) return tree;
+
+    const patchHandler = createReactTreePatcher(
+      [
+        (innerTree: any) =>
+          findInReactTree(innerTree, (x: any) => x?.props?.children?.props?.overview)?.props?.children,
+      ],
+      (_: any[], ret?: any) => {
+        const container = findInReactTree(
+          ret,
+          (x: any) =>
+            Array.isArray(x?.props?.children) &&
+            x?.props?.className?.includes(appDetailsClasses.InnerContainer),
+        );
+        if (!container || !Array.isArray(container.props.children)) return ret;
+        const alreadyPatched = container.props.children.some(
+          (child: any) => child?.props?.["data-steamdb-button"] === "true",
+        );
+        if (!alreadyPatched) {
+          container.props.children.splice(1, 0, <SteamDBButton key="steamdb-button" data-steamdb-button="true" />);
         }
         return ret;
       },
@@ -90,7 +121,8 @@ export default definePlugin(() => {
     icon: <FaShip />,
     content: <SettingsPanel />,
     onDismount() {
-      routerHook.removePatch("/library/app/:appid", patch);
+      routerHook.removePatch("/library/app/:appid", libraryRoutePatch);
+      routerHook.removePatch("/app/:appid", storeRoutePatch);
     },
   };
 });
