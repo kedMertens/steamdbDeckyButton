@@ -13,7 +13,7 @@ import {
   routerHook,
   fetchNoCors,
 } from "@decky/api";
-import { FaShip } from "react-icons/fa";
+import { FaDollarSign, FaExternalLinkAlt, FaShip } from "react-icons/fa";
 
 function getSteamDbPriceHistoryUrl(appId: string): string {
   const parsed = Number(appId);
@@ -29,14 +29,29 @@ function SteamDBButton() {
   if (!appId) return null;
 
   return (
-    <ButtonItem
-      layout="below"
-      onClick={() => {
-        const url = getSteamDbPriceHistoryUrl(appId);
-        Navigation.NavigateToExternalWeb(url);
-      }}
-    >
-      SteamDB
+    <ButtonItem layout="below" onClick={() => Navigation.NavigateToExternalWeb(getSteamDbPriceHistoryUrl(appId))}>
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "6px",
+          padding: "6px 16px",
+          borderRadius: "6px",
+          background: "#5ba32b",
+          border: "1px solid #5ba32b",
+          color: "#ffffff",
+          fontWeight: 600,
+          fontSize: "12px",
+          cursor: "pointer",
+          transition: "background 0.15s ease",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.background = "#5ba32b")}
+        onMouseLeave={(e) => (e.currentTarget.style.background = "#5ba32b")}
+      >
+        <FaDollarSign style={{ fontSize: "14px" }} />
+        <span>SteamDB</span>
+        <FaExternalLinkAlt style={{ fontSize: "12px", opacity: 0.5 }} />
+      </span>
     </ButtonItem>
   );
 }
@@ -117,8 +132,10 @@ function storeInjectButton(appId: string) {
       wrapper.style.cssText='position:fixed;z-index:999999;${storeGetPosition()}';
       const button=document.createElement('button');
       button.type='button';
-      button.textContent='SteamDB';
-      button.style.cssText='border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:8px 12px;background:rgba(0,0,0,0.65);color:#fff;font-weight:700;cursor:pointer;';
+      button.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:6px;background:#5ba32b;border:1px solid #5ba32b;color:#ffffff;font-weight:600;font-size:12px;cursor:pointer;transition:background 0.15s ease;"><span style="font-size:14px;">$</span><span>SteamDB</span><span style="font-size:12px;opacity:0.5;">↗</span></span>';
+      button.style.cssText='all:unset;display:inline-block;cursor:pointer;';
+      const chip=button.firstElementChild;
+      if(chip){chip.addEventListener('mouseenter',function(){chip.style.background='#5ba32b';});chip.addEventListener('mouseleave',function(){chip.style.background='#5ba32b';});}
       button.onclick=function(){window.open('${url}','_blank');};
       wrapper.appendChild(button);
       document.body.appendChild(wrapper);
