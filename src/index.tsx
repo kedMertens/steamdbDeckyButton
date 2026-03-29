@@ -29,30 +29,29 @@ function SteamDBButton() {
   if (!appId) return null;
 
   return (
-    <ButtonItem layout="below" onClick={() => Navigation.NavigateToExternalWeb(getSteamDbPriceHistoryUrl(appId))}>
-      <span
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "6px",
-          padding: "6px 16px",
-          borderRadius: "6px",
-          background: "#5ba32b",
-          border: "1px solid #5ba32b",
-          color: "#ffffff",
-          fontWeight: 600,
-          fontSize: "12px",
-          cursor: "pointer",
-          transition: "background 0.15s ease",
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.background = "#5ba32b")}
-        onMouseLeave={(e) => (e.currentTarget.style.background = "#5ba32b")}
-      >
-        <FaDollarSign style={{ fontSize: "14px" }} />
-        <span>SteamDB</span>
-        <FaExternalLinkAlt style={{ fontSize: "12px", opacity: 0.5 }} />
-      </span>
-    </ButtonItem>
+    <div
+      onClick={() => Navigation.NavigateToExternalWeb(getSteamDbPriceHistoryUrl(appId))}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "6px",
+        padding: "6px 16px",
+        borderRadius: "6px",
+        background: "#5ba32b",
+        border: "1px solid #5ba32b",
+        color: "#ffffff",
+        fontWeight: 600,
+        fontSize: "12px",
+        cursor: "pointer",
+        transition: "background 0.15s ease",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.background = "#5ba32b")}
+      onMouseLeave={(e) => (e.currentTarget.style.background = "#5ba32b")}
+    >
+      <FaDollarSign style={{ fontSize: "14px" }} />
+      <span>SteamDB</span>
+      <FaExternalLinkAlt style={{ fontSize: "12px", opacity: 0.5 }} />
+    </div>
   );
 }
 
@@ -268,7 +267,17 @@ export default definePlugin(() => {
           (child: any) => child?.props?.["data-steamdb-button"] === "true",
         );
         if (!alreadyPatched) {
-          container.props.children.splice(1, 0, <SteamDBButton key="steamdb-button" data-steamdb-button="true" />);
+          container.props.children.splice(
+            1,
+            0,
+            <div
+              key="steamdb-button-wrap"
+              data-steamdb-button="true"
+              style={{ position: "absolute", bottom: "40px", left: "20px", zIndex: 20 }}
+            >
+              <SteamDBButton key="steamdb-button" />
+            </div>,
+          );
         }
         return ret;
       },
