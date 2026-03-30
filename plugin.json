@@ -1,11 +1,11 @@
 {
-  "name": "Example Plugin",
+  "name": "SteamdbButton",
   "author": "John Doe",
   "flags": ["debug", "_root"],
   "api_version": 1,
   "publish": {
     "tags": ["template", "root"],
-    "description": "Decky example plugin.",
+    "description": "SteamDB Decky plugin.",
     "image": "https://opengraph.githubassets.com/1/SteamDeckHomebrew/PluginLoader"
   }
 }

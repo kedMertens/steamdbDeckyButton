@@ -76,7 +76,7 @@ function SettingsPanel() {
   const settings = useSettingsState();
 
   return (
-    <PanelSection title="SteamDB Button">
+    <PanelSection title="SteamDBButton">
       <PanelSectionRow>
         <ToggleField
           label="Enable store button"
@@ -90,11 +90,11 @@ function SettingsPanel() {
           menuLabel="Store position"
           rgOptions={[
             { data: 0, label: "Top left" },
-            { data: 1, label: "Top right" },
-            { data: 2, label: "Bottom center" },
+            { data: 1, label: "Top center" },
+            { data: 2, label: "Top right" },
             { data: 3, label: "Bottom left" },
-            { data: 4, label: "Bottom right" },
-            { data: 5, label: "Top middle" },
+            { data: 4, label: "Bottom center" },
+            { data: 5, label: "Bottom right" },
           ]}
           selectedOption={{ tl: 0, tr: 1, bc: 2, bl: 3, br: 4, tm: 5 }[settings.storePosition]}
           onChange={(newVal: { data: number; label: string }) => {
