@@ -184,7 +184,7 @@ function storeInjectButton(appId: string) {
       button.tabIndex=-1;
       button.setAttribute('role','presentation');
       button.setAttribute('aria-hidden','true');
-      button.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:6px;background:#5ba32b;border:1px solid #5ba32b;color:#ffffff;font-weight:600;font-size:12px;cursor:pointer;transition:background 0.15s ease;"><span style="font-size:14px;">$</span><span>SteamDB</span><span style="font-size:12px;opacity:0.5;">↗</span></span>';
+      button.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:6px;background:#5ba32b;border:1px solid #5ba32b;color:#ffffff;font-weight:600;font-size:14px;cursor:pointer;transition:background 0.15s ease;"><span style="font-size:14px;">$</span><span>SteamDB</span><span style="font-size:12px;opacity:0.5;">↗</span></span>';
       button.style.cssText='display:inline-block;cursor:pointer;';
       const chip=button.firstElementChild;
       if(chip){chip.addEventListener('mouseenter',function(){chip.style.background='#5ba32b';});chip.addEventListener('mouseleave',function(){chip.style.background='#5ba32b';});}
