@@ -1,13 +1,60 @@
 import {
-  ButtonItem,
+  PanelSection,
+  PanelSectionRow,
+  DropdownItem,
+  ToggleField,
   staticClasses,
   findModuleExport,
 } from "@decky/ui";
 import {
   definePlugin,
   fetchNoCors,
+  call,
 } from "@decky/api";
 import { FaShip } from "react-icons/fa";
+import { useEffect, useState } from "react";
+
+type Settings = {
+  enabled: boolean;
+  storePosition: "bc" | "bl" | "br" | "tm";
+};
+
+const DEFAULT_SETTINGS: Settings = {
+  enabled: true,
+  storePosition: "bc",
+};
+
+let currentSettings: Settings = DEFAULT_SETTINGS;
+const settingsListeners = new Set<(settings: Settings) => void>();
+
+function setSettings(next: Settings) {
+  currentSettings = next;
+  settingsListeners.forEach((listener) => listener(next));
+}
+
+async function loadSettings() {
+  const settings = await call<[string, Settings], Settings>("get_setting", "settings", DEFAULT_SETTINGS);
+  setSettings({ ...DEFAULT_SETTINGS, ...settings });
+}
+
+async function saveSettings(next: Settings) {
+  setSettings(next);
+  await call<[string, Settings], Settings>("set_setting", "settings", next);
+}
+
+function useSettingsState() {
+  const [settings, setState] = useState(currentSettings);
+
+  useEffect(() => {
+    const listener = (next: Settings) => setState(next);
+    settingsListeners.add(listener);
+    return () => {
+      settingsListeners.delete(listener);
+    };
+  }, []);
+
+  return settings;
+}
 
 function getSteamDbPriceHistoryUrl(appId: string): string {
   const parsed = Number(appId);
@@ -18,15 +65,35 @@ function getSteamDbPriceHistoryUrl(appId: string): string {
 }
 
 function SettingsPanel() {
+  const settings = useSettingsState();
+
   return (
-    <div style={{ padding: "16px" }}>
-      <ButtonItem
-        layout="below"
-        onClick={() => console.log("Clicked!")}
-      >
-        Enable Feature
-      </ButtonItem>
-    </div>
+    <PanelSection title="SteamDB Button">
+      <PanelSectionRow>
+        <ToggleField
+          label="Enable store button"
+          checked={settings.enabled}
+          onChange={(enabled: boolean) => void saveSettings({ ...settings, enabled })}
+        />
+      </PanelSectionRow>
+      <PanelSectionRow>
+        <DropdownItem
+          label="Store position"
+          menuLabel="Store position"
+          rgOptions={[
+            { data: 0, label: "Bottom center" },
+            { data: 1, label: "Bottom left" },
+            { data: 2, label: "Bottom right" },
+            { data: 3, label: "Top middle" },
+          ]}
+          selectedOption={{ bc: 0, bl: 1, br: 2, tm: 3 }[settings.storePosition]}
+          onChange={(newVal: { data: number; label: string }) => {
+            const storePosition = ({ 0: "bc", 1: "bl", 2: "br", 3: "tm" } as const)[newVal.data as 0 | 1 | 2 | 3];
+            void saveSettings({ ...settings, storePosition });
+          }}
+        />
+      </PanelSectionRow>
+    </PanelSection>
   );
 }
 
@@ -72,10 +139,20 @@ function storeRemoveButton() {
 }
 
 function storeGetPosition() {
-  return "bottom: 20px; left: 50%; transform: translateX(-50%);";
+  switch (currentSettings.storePosition) {
+    case "bl": return "bottom: 20px; left: 20px;";
+    case "br": return "bottom: 20px; right: 20px;";
+    case "tm": return "top: 60px; left: 50%; transform: translateX(-50%);";
+    default: return "bottom: 20px; left: 50%; transform: translateX(-50%);";
+  }
 }
 
 function storeInjectButton(appId: string) {
+  if (!currentSettings.enabled) {
+    storeRemoveButton();
+    return;
+  }
+
   let url: string;
   try {
     url = getSteamDbPriceHistoryUrl(appId);
@@ -210,6 +287,7 @@ function storeHandlePathChange(pathname: string) {
 }
 
 export default definePlugin(() => {
+  void loadSettings();
   let stopStoreWatcher = () => {};
   if (StoreHistory) {
     storeHandlePathChange(StoreHistory.location?.pathname || window.location.pathname);

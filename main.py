@@ -7,6 +7,37 @@ import decky
 import asyncio
 
 class Plugin:
+    def __init__(self):
+        self.settings = {
+            "enabled": True,
+            "storePosition": "bc",
+        }
+
+    async def get_setting(self, key, default=None):
+        if key == "settings":
+            return self.settings
+        return default
+
+    async def set_setting(self, key, value):
+        if key == "settings":
+            self.settings = {
+                **self.settings,
+                **value,
+            }
+            return self.settings
+
+        return value
+
+    async def get_settings(self):
+        return self.settings
+
+    async def set_settings(self, settings):
+        self.settings = {
+            **self.settings,
+            **settings,
+        }
+        return self.settings
+
     # A normal method. It can be called from the TypeScript side using @decky/api.
     async def add(self, left: int, right: int) -> int:
         return left + right
