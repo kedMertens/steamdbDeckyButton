@@ -40,6 +40,14 @@ async function loadSettings() {
 async function saveSettings(next: Settings) {
   setSettings(next);
   await call<[string, Settings], Settings>("set_setting", "settings", next);
+
+  if (storeMounted) {
+    if (!next.enabled) {
+      storeRemoveButton();
+    } else if (storeAppId) {
+      storeInjectButton(storeAppId);
+    }
+  }
 }
 
 function useSettingsState() {
