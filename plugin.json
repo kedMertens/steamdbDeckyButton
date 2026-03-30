@@ -1,11 +1,10 @@
 {
-  "name": "SteamdbButton",
-  "author": "John Doe",
-  "flags": ["debug", "_root"],
+  "name": "SteamDBButton",
+  "author": "kedMertens",
+  "flags": [],
   "api_version": 1,
   "publish": {
-    "tags": ["template", "root"],
-    "description": "SteamDB Decky plugin.",
-    "image": "https://opengraph.githubassets.com/1/SteamDeckHomebrew/PluginLoader"
+    "tags": ["steamdb", "price history"],
+    "description": "Adds a SteamDB price history shortcut while browsing the Steam store on Deck."
   }
 }

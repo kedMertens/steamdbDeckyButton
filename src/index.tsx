@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 
 type Settings = {
   enabled: boolean;
-  storePosition: "tl" | "tr" | "bc" | "bl" | "br" | "tm";
+  storePosition: "tl" | "tc" | "tr" | "bc" | "bl" | "br";
 };
 
 const DEFAULT_SETTINGS: Settings = {
@@ -96,9 +96,9 @@ function SettingsPanel() {
             { data: 4, label: "Bottom center" },
             { data: 5, label: "Bottom right" },
           ]}
-          selectedOption={{ tl: 0, tr: 1, bc: 2, bl: 3, br: 4, tm: 5 }[settings.storePosition]}
+          selectedOption={{ tl: 0, tc: 1, tr: 2, bl: 3, bc: 4, br: 5 }[settings.storePosition]}
           onChange={(newVal: { data: number; label: string }) => {
-            const storePosition = ({ 0: "tl", 1: "tr", 2: "bc", 3: "bl", 4: "br", 5: "tm" } as const)[newVal.data as 0 | 1 | 2 | 3 | 4 | 5];
+            const storePosition = ({ 0: "tl", 1: "tc", 2: "tr", 3: "bl", 4: "bc", 5: "br" } as const)[newVal.data as 0 | 1 | 2 | 3 | 4 | 5];
             void saveSettings({ ...settings, storePosition });
           }}
         />
@@ -154,7 +154,7 @@ function storeGetPosition() {
     case "tr": return "top: 60px; right: 20px;";
     case "bl": return "bottom: 20px; left: 20px;";
     case "br": return "bottom: 20px; right: 20px;";
-    case "tm": return "top: 60px; left: 50%; transform: translateX(-50%);";
+    case "tc": return "top: 60px; left: 50%; transform: translateX(-50%);";
     default: return "bottom: 20px; left: 50%; transform: translateX(-50%);";
   }
 }
