@@ -1,20 +1,13 @@
 import {
   ButtonItem,
-  Focusable,
   staticClasses,
-  appDetailsClasses,
-  createReactTreePatcher,
-  findInReactTree,
-  afterPatch,
-  Navigation,
   findModuleExport,
 } from "@decky/ui";
 import {
   definePlugin,
-  routerHook,
   fetchNoCors,
 } from "@decky/api";
-import { FaDollarSign, FaExternalLinkAlt, FaShip } from "react-icons/fa";
+import { FaShip } from "react-icons/fa";
 
 function getSteamDbPriceHistoryUrl(appId: string): string {
   const parsed = Number(appId);
@@ -22,50 +15,6 @@ function getSteamDbPriceHistoryUrl(appId: string): string {
     throw new Error("Invalid appid");
   }
   return `https://steamdb.info/app/${parsed}/#pricehistory`;
-}
-
-function SteamDBButton() {
-  const appId = typeof window !== "undefined" ? window.location.pathname.match(/\/app\/(\d+)(?:\/|$)/)?.[1] : null;
-
-  if (!appId) return null;
-
-  return (
-    <div
-      onClick={() => Navigation.NavigateToExternalWeb(getSteamDbPriceHistoryUrl(appId))}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "6px",
-        padding: "6px 16px",
-        borderRadius: "6px",
-        background: "#5ba32b",
-        border: "1px solid #5ba32b",
-        color: "#ffffff",
-        fontWeight: 600,
-        fontSize: "12px",
-        cursor: "pointer",
-        transition: "background 0.15s ease",
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = "#5ba32b")}
-      onMouseLeave={(e) => (e.currentTarget.style.background = "#5ba32b")}
-    >
-      <FaDollarSign style={{ fontSize: "14px" }} />
-      <span>SteamDB</span>
-      <FaExternalLinkAlt style={{ fontSize: "12px", opacity: 0.5 }} />
-    </div>
-  );
-}
-
-function LibrarySteamDBButton() {
-  const appId = typeof window !== "undefined" ? window.location.pathname.match(/\/app\/(\d+)(?:\/|$)/)?.[1] : null;
-
-  if (!appId) return null;
-
-  return (
-    <Focusable style={{ display: "flex", justifyContent: "flex-end", width: "100%" }} flow-children="row">
-      <SteamDBButton />
-    </Focusable>
-  );
 }
 
 function SettingsPanel() {
@@ -142,10 +91,12 @@ function storeInjectButton(appId: string) {
       const wrapper=document.createElement('div');
       wrapper.id='${STORE_BUTTON_ID}';
       wrapper.style.cssText='position:fixed;z-index:999999;${storeGetPosition()}';
-      const button=document.createElement('button');
-      button.type='button';
+      const button=document.createElement('div');
+      button.tabIndex=-1;
+      button.setAttribute('role','presentation');
+      button.setAttribute('aria-hidden','true');
       button.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:6px;background:#5ba32b;border:1px solid #5ba32b;color:#ffffff;font-weight:600;font-size:12px;cursor:pointer;transition:background 0.15s ease;"><span style="font-size:14px;">$</span><span>SteamDB</span><span style="font-size:12px;opacity:0.5;">↗</span></span>';
-      button.style.cssText='all:unset;display:inline-block;cursor:pointer;';
+      button.style.cssText='display:inline-block;cursor:pointer;';
       const chip=button.firstElementChild;
       if(chip){chip.addEventListener('mouseenter',function(){chip.style.background='#5ba32b';});chip.addEventListener('mouseleave',function(){chip.style.background='#5ba32b';});}
       button.onclick=function(){window.open('${url}','_blank');};
@@ -259,47 +210,6 @@ function storeHandlePathChange(pathname: string) {
 }
 
 export default definePlugin(() => {
-  const libraryRoutePatch = routerHook.addPatch("/library/app/:appid", (tree: any) => {
-    const routeProps = findInReactTree(tree, (x: any) => x?.renderFunc);
-    if (!routeProps) return tree;
-
-    const patchHandler = createReactTreePatcher(
-      [
-        (innerTree: any) =>
-          findInReactTree(innerTree, (x: any) => x?.props?.children?.props?.overview)?.props?.children,
-      ],
-      (_: any[], ret?: any) => {
-        const container = findInReactTree(
-          ret,
-          (x: any) =>
-            Array.isArray(x?.props?.children) &&
-            x?.props?.className?.includes(appDetailsClasses.InnerContainer),
-        );
-        if (!container || !Array.isArray(container.props.children)) return ret;
-        const alreadyPatched = container.props.children.some(
-          (child: any) => child?.props?.["data-steamdb-button"] === "true",
-        );
-        if (!alreadyPatched) {
-          container.props.children.splice(
-            1,
-            0,
-            <div
-              key="steamdb-button-wrap"
-              data-steamdb-button="true"
-              style={{ position: "absolute", top: "60px", right: "20px", zIndex: 20 }}
-            >
-              <LibrarySteamDBButton key="steamdb-button" />
-            </div>,
-          );
-        }
-        return ret;
-      },
-    );
-
-    afterPatch(routeProps, "renderFunc", patchHandler);
-    return tree;
-  });
-
   let stopStoreWatcher = () => {};
   if (StoreHistory) {
     storeHandlePathChange(StoreHistory.location?.pathname || window.location.pathname);
@@ -325,7 +235,6 @@ export default definePlugin(() => {
     icon: <FaShip />,
     content: <SettingsPanel />,
     onDismount() {
-      routerHook.removePatch("/library/app/:appid", libraryRoutePatch);
       stopStoreWatcher();
     },
   };
