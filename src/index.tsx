@@ -11,12 +11,12 @@ import {
   fetchNoCors,
   call,
 } from "@decky/api";
-import { FaShip } from "react-icons/fa";
+import { FaDollarSign } from "react-icons/fa";
 import { useEffect, useState } from "react";
 
 type Settings = {
   enabled: boolean;
-  storePosition: "bc" | "bl" | "br" | "tm";
+  storePosition: "tl" | "tr" | "bc" | "bl" | "br" | "tm";
 };
 
 const DEFAULT_SETTINGS: Settings = {
@@ -89,14 +89,16 @@ function SettingsPanel() {
           label="Store position"
           menuLabel="Store position"
           rgOptions={[
-            { data: 0, label: "Bottom center" },
-            { data: 1, label: "Bottom left" },
-            { data: 2, label: "Bottom right" },
-            { data: 3, label: "Top middle" },
+            { data: 0, label: "Top left" },
+            { data: 1, label: "Top right" },
+            { data: 2, label: "Bottom center" },
+            { data: 3, label: "Bottom left" },
+            { data: 4, label: "Bottom right" },
+            { data: 5, label: "Top middle" },
           ]}
-          selectedOption={{ bc: 0, bl: 1, br: 2, tm: 3 }[settings.storePosition]}
+          selectedOption={{ tl: 0, tr: 1, bc: 2, bl: 3, br: 4, tm: 5 }[settings.storePosition]}
           onChange={(newVal: { data: number; label: string }) => {
-            const storePosition = ({ 0: "bc", 1: "bl", 2: "br", 3: "tm" } as const)[newVal.data as 0 | 1 | 2 | 3];
+            const storePosition = ({ 0: "tl", 1: "tr", 2: "bc", 3: "bl", 4: "br", 5: "tm" } as const)[newVal.data as 0 | 1 | 2 | 3 | 4 | 5];
             void saveSettings({ ...settings, storePosition });
           }}
         />
@@ -148,6 +150,8 @@ function storeRemoveButton() {
 
 function storeGetPosition() {
   switch (currentSettings.storePosition) {
+    case "tl": return "top: 60px; left: 20px;";
+    case "tr": return "top: 60px; right: 20px;";
     case "bl": return "bottom: 20px; left: 20px;";
     case "br": return "bottom: 20px; right: 20px;";
     case "tm": return "top: 60px; left: 50%; transform: translateX(-50%);";
@@ -317,8 +321,8 @@ export default definePlugin(() => {
 
   return {
     name: "steamdbDeckyPlugin",
-    title: <div className={staticClasses.Title}>SteamDB Button</div>,
-    icon: <FaShip />,
+    title: <div className={staticClasses.Title}>SteamDB</div>,
+    icon: <FaDollarSign />,
     content: <SettingsPanel />,
     onDismount() {
       stopStoreWatcher();
