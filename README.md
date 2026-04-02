@@ -49,7 +49,7 @@ Tested on:
 - SteamOS: Steam OS Holo v3.7.20
 - Steam branch: Stable
 - Decky Loader: v3.2.3
-- Plugin commit: pending
+- Plugin commit: 360bd6775e0113942a3d082141ee3257c143199e
 
 ## Limitations
 
