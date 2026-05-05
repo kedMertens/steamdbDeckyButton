@@ -1,3 +1,4 @@
+import json
 import os
 
 # The decky plugin module is located at decky-loader/plugin
@@ -8,10 +9,36 @@ import asyncio
 
 class Plugin:
     def __init__(self):
+        self.settings_path = os.path.join(
+            decky.DECKY_PLUGIN_SETTINGS_DIR, "settings.json"
+        )
         self.settings = {
             "enabled": True,
             "storePosition": "bc",
         }
+        self._load_settings()
+
+    def _load_settings(self):
+        try:
+            with open(self.settings_path, "r", encoding="utf-8") as handle:
+                stored = json.load(handle)
+            if isinstance(stored, dict):
+                self.settings = {
+                    **self.settings,
+                    **stored,
+                }
+        except FileNotFoundError:
+            pass
+        except Exception as error:
+            decky.logger.warning(f"Failed to load settings: {error}")
+
+    def _save_settings(self):
+        try:
+            os.makedirs(decky.DECKY_PLUGIN_SETTINGS_DIR, exist_ok=True)
+            with open(self.settings_path, "w", encoding="utf-8") as handle:
+                json.dump(self.settings, handle)
+        except Exception as error:
+            decky.logger.warning(f"Failed to save settings: {error}")
 
     async def get_setting(self, key, default=None):
         if key == "settings":
@@ -24,6 +51,7 @@ class Plugin:
                 **self.settings,
                 **value,
             }
+            self._save_settings()
             return self.settings
 
         return value
@@ -36,6 +64,7 @@ class Plugin:
             **self.settings,
             **settings,
         }
+        self._save_settings()
         return self.settings
 
     # A normal method. It can be called from the TypeScript side using @decky/api.
@@ -50,6 +79,7 @@ class Plugin:
     # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
     async def _main(self):
         self.loop = asyncio.get_event_loop()
+        self._save_settings()
         decky.logger.info("Hello World!")
 
     # Function called first during the unload process, utilize this to handle your plugin being stopped, but not
